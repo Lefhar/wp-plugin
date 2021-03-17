@@ -14,7 +14,10 @@ $userpi = wp_get_current_user();
 
 // on restrein l'accés que à l'admin
 if($userpi->roles[0]!='administrator'){
+
+    // si pas administrator on met un message d'erreur
     echo langage('Erreur gestion réservé administrateur','Manager reserved management error');
+
 }else{
   // on recupére notre valeur
     $x = $wpdb->get_results('SELECT * FROM '.$table_prefix.'ga where id=1');
@@ -43,7 +46,7 @@ if($userpi->roles[0]!='administrator'){
       echo langage('est actif','is on');
         }?></p>
 
-        
+
           <?php 
           if(!empty($m->etat)&& !empty($m->code)){
             //si état est pas vide et que code n'ont est pas vide
