@@ -25,6 +25,8 @@ function mfp_Add_My_Admin_Link()
     );
 }
 $table_prefix = $wpdb->prefix;
+
+
 //on teste si la table existe
 function testetable(){
     global $table_prefix,$wpdb;
@@ -32,13 +34,13 @@ function testetable(){
   $wp_track_table = $table_prefix . "$tblname";
 
   $query = $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $wp_track_table ) );
-  
-  if ( ! $wpdb->get_var( $query ) == $wp_track_table ) {
+        
+        if ( ! $wpdb->get_var( $query ) == $wp_track_table ) {
 
-    return false;
- }else{
-    return true;
- }
+            return false;
+        }else{
+            return true;
+        }
 
 }
 
@@ -50,58 +52,76 @@ function create_plugin_database_table()
     $wp_track_table = $table_prefix . "$tblname";
 	$variableteste = 'show tables like "'.$wp_track_table.'" ';
 
-if(!testetable() ){
-$sql ="CREATE TABLE ".$wp_track_table." (
-    `id` int(1),
-  `code` varchar(500) NOT NULL,
-  `etat` varchar(500) NOT NULL DEFAULT 'no'
-)  ".$wpdb->get_charset_collate().";
-INSERT INTO ".$wp_track_table." (`id`, `code`, `etat`) VALUES
-('1', '', 'no');
+        if(!testetable() ){
+        $sql ="CREATE TABLE ".$wp_track_table." (
+            `id` int(1),
+        `code` varchar(500) NOT NULL,
+        `etat` varchar(500) NOT NULL DEFAULT 'no'
+        )  ".$wpdb->get_charset_collate().";
+        INSERT INTO ".$wp_track_table." (`id`, `code`, `etat`) VALUES
+        ('1', '', 'no');
 
-ALTER TABLE ".$wp_track_table."
-  ADD UNIQUE KEY `code` (`code`,`etat`);";
-             if(!function_exists('dbDelta')) {
-                require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-            }
+        ALTER TABLE ".$wp_track_table."
+        ADD UNIQUE KEY `code` (`code`,`etat`);";
+                    if(!function_exists('dbDelta')) {
+                        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+                    }
 
-  dbDelta( $sql );
-  echo "Tables created...";
-  update_option('tables_created', true);
+        dbDelta( $sql );
+        echo "Tables created...";
+        update_option('tables_created', true);
+        }
 }
-}
 
+
+// enregistrement de la fonction
 register_activation_hook(__FILE__, 'create_plugin_database_table');
+
+
 //fonction de langue basé sur la langue du navigateur fr si français sinon on met anglais
 function langage($fr,$us){
-    $langue = $_SERVER['HTTP_ACCEPT_LANGUAGE']; 
-if(preg_match('`fr`i', $langue))
-    { 
-    $variable = $fr;
 
-   } else 
-    { 
-    $variable = $us;
-    }
-    return $variable;
+    // on recupére le langage du navigateur
+    $langue = $_SERVER['HTTP_ACCEPT_LANGUAGE']; 
+
+    // si contient FR bas on met en français donc premier string
+        if(preg_match('`fr`i', $langue))
+            { 
+                return  $fr;
+
+            //sinon on met la version anglais donc second string
+        } else { 
+
+            return  $us;
+            }
+
 }
 
+// ajout de l'action d'ajout de chose dans le footer
 add_action('wp_footer', 'ADDGA');
+
+//fonction qui va créer le script google analytic par rapport à l'identifiant entré dans l'admin uniquement si activé
 function ADDGA(){
+
+    //on charge wpdb et le préfix de la table 
     global $wpdb, $table_prefix;
+
+    // requête sql pour recupérer si actif ou pas
     $x = $wpdb->get_results('SELECT * FROM '.$table_prefix.'ga where id=1');
     $m = $x[0];
+
+    //si actif
     if($m->etat =='yes'){
-echo "<script>
-(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+            echo "<script>
+            (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+            })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
-ga('create', '".$m->code."', 'auto');
-ga('send', 'pageview');
+            ga('create', '".$m->code."', 'auto');
+            ga('send', 'pageview');
 
-</script>";
+            </script>";
 
     }
 
