@@ -86,19 +86,20 @@ function langage($fr,$us){
 
     // si contient FR bas on met en français donc premier string
         if(preg_match('`fr`i', $langue))
-            { 
-                return  $fr;
+        { 
+            return  $fr;
 
             //sinon on met la version anglais donc second string
         } else { 
 
             return  $us;
-            }
+        }
 
 }
 
-// ajout de l'action d'ajout de chose dans le footer
-add_action('wp_footer', 'ADDGA');
+    // ajout de l'action d'ajout de chose dans le footer
+    add_action('wp_footer', 'ADDGA');
+
 
 //fonction qui va créer le script google analytic par rapport à l'identifiant entré dans l'admin uniquement si activé
 function ADDGA(){
